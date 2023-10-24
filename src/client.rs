@@ -210,8 +210,12 @@ impl Client {
             StatusCode::SERVICE_UNAVAILABLE => Err(Error::ServiceUnavailable),
             StatusCode::UNAUTHORIZED => Err(Error::Unauthorized),
             StatusCode::BAD_REQUEST => {
-                let error: BinanceContentError = response.json().await?;
-                Err(handle_content_error(error))
+                let error_text = response.text().await?;
+
+                match serde_json::from_str::<BinanceContentError>(error_text.as_str()) {
+                    Ok(error) => Err(handle_content_error(error)),
+                    Err(_) => Err(Error::Msg(format!("400: {:?}", error_text))),
+                }
             }
             s => Err(Error::Msg(format!("Received response: {s:?}"))),
         }
