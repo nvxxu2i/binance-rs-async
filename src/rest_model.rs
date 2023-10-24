@@ -474,6 +474,7 @@ pub struct CrossMarginFeeDataQuery {
     pub coin: Option<String>,
 }
 
+#[serde_as]
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct CrossMarginFeeDataResponse {
@@ -481,9 +482,12 @@ pub struct CrossMarginFeeDataResponse {
     pub coin: String,
     pub transfer_in: bool,
     pub borrowable: bool,
-    pub daily_interest: String,
-    pub yearly_interest: String,
-    pub borrow_limit: String,
+    #[serde_as(as = "DisplayFromStr")]
+    pub daily_interest: f64,
+    #[serde_as(as = "DisplayFromStr")]
+    pub yearly_interest: f64,
+    #[serde_as(as = "DisplayFromStr")]
+    pub borrow_limit: f64,
     pub marginable_pairs: Vec<String>,
 }
 
