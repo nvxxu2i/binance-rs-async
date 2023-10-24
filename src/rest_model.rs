@@ -563,7 +563,7 @@ pub struct MarginOrder {
     pub order_type: OrderType,
     pub quantity: Option<f32>,
     pub quote_order_qty: Option<f64>,
-    pub price: Option<f64>,
+    pub price: Option<f32>,
     /// Used with `OrderType::StopLoss`, `OrderType::StopLossLimit`, `OrderType::TakeProfit` and `OrderType::TakeProfitLimit`
     pub stop_price: Option<f64>,
     pub new_client_order_id: Option<String>,
