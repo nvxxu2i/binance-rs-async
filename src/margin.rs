@@ -33,6 +33,7 @@ static SAPI_USER_DATA_STREAM: &str = "/sapi/v1/userDataStream";
 static SAPI_USER_DATA_STREAM_ISOLATED: &str = "/sapi/v1/userDataStream/isolated";
 static SAPI_V1_BNB_BURN: &str = "/sapi/v1/bnbBurn";
 static SAPI_V1_MARGIN_INTEREST_RATE_HISTORY: &str = "/sapi/v1/margin/interestRateHistory";
+static SAPI_V1_MARGIN_AVAILABLE_INVENTORY: &str = "/sapi/v1/margin/available-inventory";
 
 /// This struct acts as a gateway for all margin endpoints.
 /// Preferably use the trait [`crate::api::Binance`] to get an instance.
@@ -840,6 +841,22 @@ impl Margin {
     pub async fn open_oco_orders(&self, query: MarginPairQuery) -> Result<Vec<MarginOCOOrderResult>> {
         self.client
             .get_signed_p(SAPI_V1_MARGIN_OCO_OPEN_ORDER_LIST, Some(query), self.recv_window)
+            .await
+    }
+
+    pub async fn margin_inventory(&self, isolated: bool) -> Result<MarginInventoryResponse> {
+        self.client
+            .get_signed_p(
+                SAPI_V1_MARGIN_AVAILABLE_INVENTORY,
+                Some(MarginInventoryQuery {
+                    query_type: if isolated {
+                        MarginInventoryQueryType::Isolated
+                    } else {
+                        MarginInventoryQueryType::Margin
+                    },
+                }),
+                self.recv_window,
+            )
             .await
     }
 

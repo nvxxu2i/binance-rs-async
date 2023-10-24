@@ -1,6 +1,8 @@
 use chrono::{DateTime, Utc};
 use serde_repr::{Deserialize_repr, Serialize_repr};
-use std::collections::HashMap;
+use serde_with::serde_as;
+use serde_with::DisplayFromStr;
+use std::collections::{BTreeMap, HashMap};
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
@@ -1024,6 +1026,28 @@ pub struct AssetQuery {
 pub struct MarginAssetQuery {
     pub asset: String,
     pub isolated_symbol: Option<String>,
+}
+
+#[derive(Debug, Serialize, Clone)]
+#[serde(rename_all = "UPPERCASE")]
+pub enum MarginInventoryQueryType {
+    Margin,
+    Isolated,
+}
+
+#[derive(Debug, Serialize, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct MarginInventoryQuery {
+    #[serde(rename = "type")]
+    pub query_type: MarginInventoryQueryType,
+}
+
+#[serde_as]
+#[derive(Debug, Deserialize, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct MarginInventoryResponse {
+    #[serde_as(as = "BTreeMap<_, DisplayFromStr>")]
+    pub assets: BTreeMap<String, f64>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
