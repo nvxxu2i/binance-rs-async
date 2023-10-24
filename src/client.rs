@@ -1,3 +1,4 @@
+use std::fmt::Display;
 use std::time::Duration;
 
 use boolinator::Boolinator;
@@ -6,8 +7,8 @@ use reqwest::header::{HeaderMap, HeaderName, HeaderValue, CONTENT_TYPE, USER_AGE
 use reqwest::Response;
 use reqwest::StatusCode;
 use ring::hmac;
-use serde::de;
 use serde::de::DeserializeOwned;
+use serde::Serialize;
 
 use crate::errors::error_messages;
 use crate::errors::*;
@@ -46,17 +47,17 @@ impl Client {
         self.handler(response).await
     }
 
-    pub async fn get_signed_d<T: de::DeserializeOwned>(&self, endpoint: &str, request: &str) -> Result<T> {
+    pub async fn get_signed_d<T: DeserializeOwned>(&self, endpoint: &str, request: &str) -> Result<T> {
         self.get_signed(endpoint, request).await
     }
 
-    pub async fn get_signed_p<T: de::DeserializeOwned, P: serde::Serialize>(
+    pub async fn get_signed_p<T: DeserializeOwned, P: Serialize>(
         &self,
         endpoint: &str,
         payload: Option<P>,
         recv_window: u64,
     ) -> Result<T> {
-        let req = build_signed_request_p(payload, recv_window)?;
+        let req = build_signed_request_p(&payload, recv_window)?;
         self.get_signed(endpoint, &req).await
     }
 
@@ -67,24 +68,24 @@ impl Client {
         self.handler(response).await
     }
 
-    pub async fn post_signed_d<T: de::DeserializeOwned>(&self, endpoint: &str, request: &str) -> Result<T> {
+    pub async fn post_signed_d<T: DeserializeOwned>(&self, endpoint: &str, request: &str) -> Result<T> {
         self.post_signed(endpoint, request).await
     }
 
-    pub async fn post_signed_p<T: de::DeserializeOwned, P: serde::Serialize>(
+    pub async fn post_signed_p<T: DeserializeOwned>(
         &self,
         endpoint: &str,
-        payload: P,
+        payload: impl Serialize,
         recv_window: u64,
     ) -> Result<T> {
         let request = build_signed_request_p(payload, recv_window)?;
         self.post_signed(endpoint, &request).await
     }
 
-    pub async fn delete_signed_p<T: de::DeserializeOwned, P: serde::Serialize>(
+    pub async fn delete_signed_p<T: DeserializeOwned, P: Serialize>(
         &self,
         endpoint: &str,
-        payload: P,
+        payload: &P,
         recv_window: u64,
     ) -> Result<T> {
         let request = build_signed_request_p(payload, recv_window)?;
@@ -103,31 +104,23 @@ impl Client {
         self.handler(response).await
     }
 
-    pub async fn get<T: DeserializeOwned>(&self, endpoint: &str, request: Option<&str>) -> Result<T> {
+    pub async fn get<T: DeserializeOwned>(&self, endpoint: &str, request: Option<impl Display>) -> Result<T> {
         let url = request
-            .map(|r| format!("{}{}?{}", self.host, endpoint, r))
-            .unwrap_or_else(|| format!("{}{}", self.host, endpoint));
+            .map(|r| format!("{}{endpoint}?{r}", self.host))
+            .unwrap_or_else(|| format!("{}{endpoint}", self.host));
 
         let response = self.inner.get(&url).send().await?;
 
         self.handler(response).await
     }
 
-    pub async fn get_p<T: DeserializeOwned>(&self, endpoint: &str, request: Option<&str>) -> Result<T> {
+    pub async fn get_p<T: DeserializeOwned>(&self, endpoint: &str, request: Option<impl Display>) -> Result<T> {
         self.get(endpoint, request).await
     }
 
-    pub async fn get_d<T: DeserializeOwned, S: serde::Serialize>(
-        &self,
-        endpoint: &str,
-        payload: Option<S>,
-    ) -> Result<T> {
-        let req = if let Some(p) = payload {
-            Some(build_request_p(p)?)
-        } else {
-            None
-        };
-        self.get_p(endpoint, req.as_deref()).await
+    pub async fn get_d<T: DeserializeOwned, S: Serialize>(&self, endpoint: &str, payload: Option<&S>) -> Result<T> {
+        let req = payload.as_ref().map(|p| build_request_p(p)).transpose()?;
+        self.get_p(endpoint, req).await
     }
 
     pub async fn post<T: DeserializeOwned>(&self, endpoint: &str, symbol: Option<&str>) -> Result<T> {
@@ -203,7 +196,7 @@ impl Client {
         Ok(header)
     }
 
-    async fn handler<T: de::DeserializeOwned>(&self, response: Response) -> Result<T> {
+    async fn handler<T: DeserializeOwned>(&self, response: Response) -> Result<T> {
         match response.status() {
             StatusCode::OK => Ok(response.json().await?),
             StatusCode::INTERNAL_SERVER_ERROR => Err(Error::InternalServerError),

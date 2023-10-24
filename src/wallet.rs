@@ -47,7 +47,9 @@ impl Wallet {
     /// let system_status = tokio_test::block_on(wallet.system_status());
     /// assert!(system_status.is_ok(), "{:?}", system_status);
     /// ```
-    pub async fn system_status(&self) -> Result<SystemStatus> { self.client.get_p(SAPI_V1_SYSTEM_STATUS, None).await }
+    pub async fn system_status(&self) -> Result<SystemStatus> {
+        self.client.get_p(SAPI_V1_SYSTEM_STATUS, None::<String>).await
+    }
 
     /// Get information of coins (available for deposit and withdraw) for user.
     /// # Examples
@@ -95,7 +97,7 @@ impl Wallet {
         self.client
             .post_signed_p(
                 SAPI_V1_ACCOUNT_DISABLEFASTWITHDRAWSWITCH,
-                Option::<String>::None,
+                &Option::<String>::None,
                 self.recv_window,
             )
             .await
@@ -114,7 +116,7 @@ impl Wallet {
         self.client
             .post_signed_p(
                 SAPI_V1_ACCOUNT_ENABLEFASTWITHDRAWSWITCH,
-                Option::<String>::None,
+                &Option::<String>::None,
                 self.recv_window,
             )
             .await
@@ -310,7 +312,7 @@ impl Wallet {
             transfer_type,
         };
         self.client
-            .post_signed_p(SAPI_V1_ASSET_TRANSFER, transfer, self.recv_window)
+            .post_signed_p(SAPI_V1_ASSET_TRANSFER, &transfer, self.recv_window)
             .await
     }
 
@@ -400,7 +402,7 @@ impl Wallet {
     /// ```
     pub async fn convertible_assets(&self) -> Result<ConvertibleAssets> {
         self.client
-            .post_signed_p(SAPI_V1_ASSET_DUSTBTC, Option::<String>::None, self.recv_window)
+            .post_signed_p(SAPI_V1_ASSET_DUSTBTC, &Option::<String>::None, self.recv_window)
             .await
     }
 
@@ -434,7 +436,7 @@ impl Wallet {
     /// ```
     pub async fn asset_dividends(&self, query: AssetDividendQuery) -> Result<RecordsQueryResult<AssetDividend>> {
         self.client
-            .get_signed_p(SAPI_V1_ASSET_ASSETDIVIDEND, Some(query), self.recv_window)
+            .get_signed_p(SAPI_V1_ASSET_ASSETDIVIDEND, Some(query).as_ref(), self.recv_window)
             .await
     }
 

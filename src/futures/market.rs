@@ -22,7 +22,7 @@ impl FuturesMarket {
         S: Into<String>,
     {
         self.client
-            .get_d("/fapi/v1/depth", Some(PairQuery { symbol: symbol.into() }))
+            .get_d("/fapi/v1/depth", Some(&PairQuery { symbol: symbol.into() }))
             .await
     }
 
@@ -32,7 +32,7 @@ impl FuturesMarket {
         S: Into<String>,
     {
         self.client
-            .get_d("/fapi/v1/trades", Some(PairQuery { symbol: symbol.into() }))
+            .get_d("/fapi/v1/trades", Some(&PairQuery { symbol: symbol.into() }))
             .await
     }
 
@@ -309,7 +309,7 @@ impl FuturesMarket {
             from_id: None,
             period: None,
         };
-        let data: Vec<Vec<Value>> = self.client.get_d("/fapi/v1/klines", Some(query)).await?;
+        let data: Vec<Vec<Value>> = self.client.get_d("/fapi/v1/klines", Some(&query)).await?;
 
         let klines = KlineSummaries::AllKlineSummaries(
             data.iter()
@@ -360,7 +360,7 @@ impl FuturesMarket {
             from_id: None,
             period: None,
         };
-        let klines = self.client.get_d("/fapi/v1/lvtKlines", Some(query)).await?;
+        let klines = self.client.get_d("/fapi/v1/lvtKlines", Some(&query)).await?;
 
         Ok(klines)
     }
@@ -393,7 +393,7 @@ impl FuturesMarket {
             from_id: None,
             period: None,
         };
-        let klines = self.client.get_d("/fapi/v1/markPriceKlines", Some(query)).await?;
+        let klines = self.client.get_d("/fapi/v1/markPriceKlines", Some(&query)).await?;
 
         Ok(klines)
     }
@@ -402,21 +402,14 @@ impl FuturesMarket {
     /// https://binance-docs.github.io/apidocs/futures/en/#index-price-kline-candlestick-data
     /// As the vector fields are undocumented on binance futures you are un your own, follow
     /// KlineSummary for an example
-    pub async fn get_index_price_klines_v<S1, S2, S3, S4, S5>(
+    pub async fn get_index_price_klines_v(
         &self,
-        symbol: S1,
-        interval: S2,
-        limit: S3,
-        start_time: S4,
-        end_time: S5,
-    ) -> Result<Vec<Vec<Value>>>
-    where
-        S1: Into<String>,
-        S2: Into<String>,
-        S3: Into<u16>,
-        S4: Into<Option<u64>>,
-        S5: Into<Option<u64>>,
-    {
+        symbol: impl Into<String>,
+        interval: impl Into<String>,
+        limit: impl Into<u16>,
+        start_time: impl Into<Option<u64>>,
+        end_time: impl Into<Option<u64>>,
+    ) -> Result<Vec<Vec<Value>>> {
         let query = HistoryQuery {
             start_time: start_time.into(),
             end_time: end_time.into(),
@@ -427,9 +420,7 @@ impl FuturesMarket {
             period: None,
         };
 
-        let klines = self.client.get_d("/fapi/v1/indexPriceKlines", Some(query)).await?;
-
-        Ok(klines)
+        self.client.get_d("/fapi/v1/indexPriceKlines", Some(&query)).await
     }
 
     /// Returns up to 'limit' continuous contract klines for given symbol and interval ("1m", "5m", ...)
@@ -460,7 +451,7 @@ impl FuturesMarket {
             from_id: None,
             period: None,
         };
-        let klines = self.client.get_d("/fapi/v1/continuousKlines", Some(query)).await?;
+        let klines = self.client.get_d("/fapi/v1/continuousKlines", Some(&query)).await?;
 
         Ok(klines)
     }
@@ -486,7 +477,7 @@ impl FuturesMarket {
         S: Into<String>,
     {
         let p = symbol.map(|s| PairQuery { symbol: s.into() });
-        self.client.get_d("/fapi/v1/indexInfo", p).await
+        self.client.get_d("/fapi/v1/indexInfo", p.as_ref()).await
     }
 
     /// 24hr ticker price change statistics
@@ -495,13 +486,13 @@ impl FuturesMarket {
         S: Into<String>,
     {
         self.client
-            .get_d("/fapi/v1/ticker/24hr", Some(PairQuery { symbol: symbol.into() }))
+            .get_d("/fapi/v1/ticker/24hr", Some(&PairQuery { symbol: symbol.into() }))
             .await
     }
 
     /// 24hr ticker price change statistics for all symbols
     pub async fn get_all_24h_price_stats(&self) -> Result<Vec<PriceStats>> {
-        self.client.get_p("/fapi/v1/ticker/24hr", None).await
+        self.client.get_p("/fapi/v1/ticker/24hr", None::<String>).await
     }
 
     /// Latest price for ONE symbol.
@@ -510,14 +501,14 @@ impl FuturesMarket {
         S: Into<String>,
     {
         self.client
-            .get_d("/fapi/v1/ticker/price", Some(PairQuery { symbol: symbol.into() }))
+            .get_d("/fapi/v1/ticker/price", Some(&PairQuery { symbol: symbol.into() }))
             .await
     }
 
     /// Symbols order book ticker
     /// -> Best price/qty on the order book for ALL symbols.
     pub async fn get_all_book_tickers(&self) -> Result<BookTickers> {
-        self.client.get_p("/fapi/v1/ticker/bookTicker", None).await
+        self.client.get_p("/fapi/v1/ticker/bookTicker", None::<String>).await
     }
 
     // -> Best price/qty on the order book for ONE symbol
@@ -526,7 +517,7 @@ impl FuturesMarket {
         S: Into<String>,
     {
         self.client
-            .get_d("/fapi/v1/ticker/bookTicker", Some(PairQuery { symbol: symbol.into() }))
+            .get_d("/fapi/v1/ticker/bookTicker", Some(&PairQuery { symbol: symbol.into() }))
             .await
     }
 
@@ -534,16 +525,16 @@ impl FuturesMarket {
         if let Some(symbol) = symbol {
             Ok(vec![
                 self.client
-                    .get_d::<MarkPrice, PairQuery>("/fapi/v1/premiumIndex", Some(PairQuery { symbol }))
+                    .get_d::<MarkPrice, PairQuery>("/fapi/v1/premiumIndex", Some(&PairQuery { symbol }))
                     .await?,
             ])
         } else {
-            self.client.get_p("/fapi/v1/premiumIndex", None).await
+            self.client.get_p("/fapi/v1/premiumIndex", None::<String>).await
         }
     }
 
     pub async fn get_all_liquidation_orders(&self) -> Result<LiquidationOrders> {
-        self.client.get_p("/fapi/v1/allForceOrders", None).await
+        self.client.get_p("/fapi/v1/allForceOrders", None::<String>).await
     }
 
     pub async fn open_interest<S>(&self, symbol: S) -> Result<OpenInterest>
@@ -551,7 +542,7 @@ impl FuturesMarket {
         S: Into<String>,
     {
         self.client
-            .get_d("/fapi/v1/openInterest", Some(PairQuery { symbol: symbol.into() }))
+            .get_d("/fapi/v1/openInterest", Some(&PairQuery { symbol: symbol.into() }))
             .await
     }
 }

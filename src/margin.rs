@@ -72,7 +72,7 @@ impl Margin {
             transfer_type,
         };
         self.client
-            .post_signed_p(SAPI_V1_MARGIN_TRANSFER, transfer, self.recv_window)
+            .post_signed_p(SAPI_V1_MARGIN_TRANSFER, &transfer, self.recv_window)
             .await
     }
 
@@ -104,7 +104,7 @@ impl Margin {
             trans_to: to,
         };
         self.client
-            .post_signed_p(SAPI_V1_MARGIN_ISOLATED_TRANSFER, transfer, self.recv_window)
+            .post_signed_p(SAPI_V1_MARGIN_ISOLATED_TRANSFER, &transfer, self.recv_window)
             .await
     }
 
@@ -150,7 +150,7 @@ impl Margin {
             symbol: isolated_asset,
         };
         self.client
-            .post_signed_p(SAPI_V1_MARGIN_LOAN, loan, self.recv_window)
+            .post_signed_p(SAPI_V1_MARGIN_LOAN, &loan, self.recv_window)
             .await
     }
 
@@ -195,7 +195,7 @@ impl Margin {
             symbol: isolated_asset,
         };
         self.client
-            .post_signed_p(SAPI_V1_MARGIN_REPAY, loan, self.recv_window)
+            .post_signed_p(SAPI_V1_MARGIN_REPAY, &loan, self.recv_window)
             .await
     }
 
@@ -222,7 +222,7 @@ impl Margin {
     /// let transaction_id = tokio_test::block_on(margin.trade(margin_order));
     /// assert!(transaction_id.is_ok(), "{:?}", transaction_id);
     /// ```
-    pub async fn trade(&self, margin_order: MarginOrder) -> Result<MarginOrderResult> {
+    pub async fn trade(&self, margin_order: &MarginOrder) -> Result<MarginOrderResult> {
         self.client
             .post_signed_p(SAPI_V1_MARGIN_ORDER, margin_order, self.recv_window)
             .await
@@ -252,7 +252,7 @@ impl Margin {
     /// assert!(transaction_id.is_ok(), "{:?}", transaction_id);
     /// ```
     #[tracing::instrument(skip(self), err)]
-    pub async fn new_order(&self, margin_order: MarginOrder) -> Result<MarginOrderResult> {
+    pub async fn new_order(&self, margin_order: &MarginOrder) -> Result<MarginOrderResult> {
         self.trade(margin_order).await
     }
 
@@ -272,7 +272,7 @@ impl Margin {
     /// let transaction_id = tokio_test::block_on(margin.new_oco_order(margin_order));
     /// assert!(transaction_id.is_ok(), "{:?}", transaction_id);
     /// ```
-    pub async fn new_oco_order(&self, margin_order: MarginOCOOrder) -> Result<MarginOCOOrderResult> {
+    pub async fn new_oco_order(&self, margin_order: &MarginOCOOrder) -> Result<MarginOCOOrderResult> {
         self.client
             .post_signed_p(SAPI_V1_MARGIN_OCO_ORDER, margin_order, self.recv_window)
             .await
@@ -306,7 +306,7 @@ impl Margin {
             is_isolated: is_isolated.map(bool_to_string),
         };
         self.client
-            .delete_signed_p(SAPI_V1_MARGIN_ORDER, margin_order_cancellation, self.recv_window)
+            .delete_signed_p(SAPI_V1_MARGIN_ORDER, &margin_order_cancellation, self.recv_window)
             .await
     }
 
@@ -338,7 +338,7 @@ impl Margin {
             is_isolated: is_isolated.map(bool_to_string),
         };
         self.client
-            .delete_signed_p(SAPI_V1_MARGIN_OCO_ORDER, margin_order_cancellation, self.recv_window)
+            .delete_signed_p(SAPI_V1_MARGIN_OCO_ORDER, &margin_order_cancellation, self.recv_window)
             .await
     }
 
@@ -363,7 +363,11 @@ impl Margin {
             is_isolated: is_isolated.map(bool_to_string),
         };
         self.client
-            .delete_signed_p(SAPI_V1_MARGIN_OPEN_ORDERS, margin_orders_cancellation, self.recv_window)
+            .delete_signed_p(
+                SAPI_V1_MARGIN_OPEN_ORDERS,
+                &margin_orders_cancellation,
+                self.recv_window,
+            )
             .await
     }
 
@@ -446,7 +450,7 @@ impl Margin {
     pub async fn disable_isolated(&self, symbol: String) -> Result<IsolatedMarginAccountDetails> {
         let q: Option<PairQuery> = Some(PairQuery { symbol });
         self.client
-            .delete_signed_p(SAPI_V1_MARGIN_ISOLATED_ACCOUNT, q, self.recv_window)
+            .delete_signed_p(SAPI_V1_MARGIN_ISOLATED_ACCOUNT, &q, self.recv_window)
             .await
     }
 
@@ -461,7 +465,7 @@ impl Margin {
     pub async fn enable_isolated(&self, symbol: String) -> Result<IsolatedMarginAccountDetails> {
         let q: Option<PairQuery> = Some(PairQuery { symbol });
         self.client
-            .post_signed_p(SAPI_V1_MARGIN_ISOLATED_ACCOUNT, q, self.recv_window)
+            .post_signed_p(SAPI_V1_MARGIN_ISOLATED_ACCOUNT, &q, self.recv_window)
             .await
     }
 
@@ -509,7 +513,7 @@ impl Margin {
     /// let all_pairs = tokio_test::block_on(margin.toggle_bnb_burn(BnbBurnQuery::default()));
     /// assert!(all_pairs.is_ok(), "{:?}", all_pairs);
     /// ```
-    pub async fn toggle_bnb_burn(&self, query: BnbBurnQuery) -> Result<BnbBurnStatus> {
+    pub async fn toggle_bnb_burn(&self, query: &BnbBurnQuery) -> Result<BnbBurnStatus> {
         self.client
             .post_signed_p(SAPI_V1_BNB_BURN, query, self.recv_window)
             .await

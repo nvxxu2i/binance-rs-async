@@ -2,6 +2,7 @@ use std::ops::Not;
 
 use boolinator::Boolinator;
 use chrono::{Duration, Utc};
+use serde::Serialize;
 use serde_json::Value;
 
 use crate::errors::*;
@@ -15,12 +16,7 @@ pub fn build_request(parameters: impl IntoIterator<Item = (impl AsRef<str>, impl
         .join("&")
 }
 
-pub fn build_request_p<S>(payload: S) -> Result<String>
-where
-    S: serde::Serialize,
-{
-    Ok(qs::to_string(&payload)?)
-}
+pub fn build_request_p(payload: &impl Serialize) -> Result<String> { qs::to_string(payload).map_err(Into::into) }
 
 pub fn build_signed_request(
     parameters: impl IntoIterator<Item = (impl AsRef<str>, impl AsRef<str>)>,
@@ -48,7 +44,7 @@ pub fn build_signed_request(
 
 pub fn build_signed_request_p<S>(payload: S, recv_window: u64) -> Result<String>
 where
-    S: serde::Serialize,
+    S: Serialize,
 {
     let query_string = qs::to_string(&payload)?;
 

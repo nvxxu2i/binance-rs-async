@@ -211,7 +211,7 @@ impl Account {
     /// ```
     pub async fn get_all_orders(&self, query: OrdersQuery) -> Result<Vec<Order>> {
         let recv_window = query.recv_window.unwrap_or(self.recv_window);
-        let request = build_signed_request_p(query, recv_window)?;
+        let request = build_signed_request_p(&query, recv_window)?;
         self.client.get_signed(API_V3_ALL_ORDERS, &request).await
     }
 
@@ -261,7 +261,7 @@ impl Account {
     /// ```
     pub async fn order_status(&self, osr: OrderStatusRequest) -> Result<Order> {
         let recv_window = osr.recv_window.unwrap_or(self.recv_window);
-        let request = build_signed_request_p(osr, recv_window)?;
+        let request = build_signed_request_p(&osr, recv_window)?;
         self.client.get_signed(API_V3_ORDER, &request).await
     }
 
@@ -283,7 +283,7 @@ impl Account {
     /// ```
     pub async fn test_order_status(&self, osr: OrderStatusRequest) -> Result<TestResponse> {
         let recv_window = osr.recv_window.unwrap_or(self.recv_window);
-        let request = build_signed_request_p(osr, recv_window)?;
+        let request = build_signed_request_p(&osr, recv_window)?;
         self.client.get_signed(API_V3_ORDER_TEST, &request).await
     }
 
@@ -309,7 +309,7 @@ impl Account {
     pub async fn place_order(&self, order: OrderRequest) -> Result<Transaction> {
         order.valid()?;
         let recv_window = order.recv_window.unwrap_or(self.recv_window);
-        let request = build_signed_request_p(order, recv_window)?;
+        let request = build_signed_request_p(&order, recv_window)?;
         self.client.post_signed(API_V3_ORDER, &request).await
     }
 
@@ -336,7 +336,7 @@ impl Account {
     pub async fn place_test_order(&self, order: OrderRequest) -> Result<TestResponse> {
         order.valid()?;
         let recv_window = order.recv_window.unwrap_or(self.recv_window);
-        let request = build_signed_request_p(order, recv_window)?;
+        let request = build_signed_request_p(&order, recv_window)?;
         self.client.post_signed(API_V3_ORDER_TEST, &request).await
     }
 
@@ -357,14 +357,14 @@ impl Account {
     /// ```
     pub async fn cancel_order(&self, o: OrderCancellation) -> Result<OrderCanceled> {
         let recv_window = o.recv_window.unwrap_or(self.recv_window);
-        let request = build_signed_request_p(o, recv_window)?;
+        let request = build_signed_request_p(&o, recv_window)?;
         self.client.delete_signed(API_V3_ORDER, &request).await
     }
 
     pub async fn cancel_replace_order(&self, order: CancelReplaceRequest) -> Result<OrderCanceledReplaced> {
         order.valid()?;
         let recv_window = order.recv_window.unwrap_or(self.recv_window);
-        let request = build_signed_request_p(order, recv_window)?;
+        let request = build_signed_request_p(&order, recv_window)?;
         self.client.post_signed(API_V3_CANCEL_REPLACE, &request).await
     }
 
@@ -387,7 +387,7 @@ impl Account {
     /// ```
     pub async fn test_cancel_order(&self, o: OrderCancellation) -> Result<TestResponse> {
         let recv_window = o.recv_window.unwrap_or(self.recv_window);
-        let request = build_signed_request_p(o, recv_window)?;
+        let request = build_signed_request_p(&o, recv_window)?;
         self.client.delete_signed(API_V3_ORDER_TEST, &request).await
     }
 

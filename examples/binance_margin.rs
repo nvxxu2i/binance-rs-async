@@ -193,9 +193,9 @@ async fn margin_post() {
         symbol: "BTCUSDT".to_string(),
         side: OrderSide::Sell,
         order_type: OrderType::Limit,
-        quantity: Some(0.001),
+        quantity: Some("0.001".to_string()),
         quote_order_qty: None,
-        price: Some(10.0),
+        price: Some("10.0".to_string()),
         stop_price: Some(10.0),
         new_client_order_id: Some("my_id".to_string()),
         iceberg_qty: Some(10.0),
@@ -204,7 +204,7 @@ async fn margin_post() {
         side_effect_type: SideEffectType::NoSideEffect,
         is_isolated: None,
     };
-    let new_order = margin.new_order(margin_order).await;
+    let new_order = margin.new_order(&margin_order).await;
     eprintln!("new_order = {new_order:?}");
 
     let cancel_trade = margin
@@ -221,6 +221,6 @@ async fn margin_post() {
     eprintln!("disable_isolated = {disable_isolated:?}");
     let enable_isolated = margin.enable_isolated("BTCUSDT".to_string()).await;
     eprintln!("enable_isolated = {enable_isolated:?}");
-    let toggle_bnb_burn = margin.toggle_bnb_burn(BnbBurnQuery::default()).await;
+    let toggle_bnb_burn = margin.toggle_bnb_burn(&BnbBurnQuery::default()).await;
     eprintln!("toggle_bnb_burn = {toggle_bnb_burn:?}");
 }

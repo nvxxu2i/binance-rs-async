@@ -21,7 +21,7 @@ impl General {
     /// assert_eq!(pong.unwrap(), "pong");
     /// ```
     pub async fn ping(&self) -> Result<&'static str> {
-        let _: Value = self.client.get("/api/v3/ping", None).await?;
+        let _: Value = self.client.get("/api/v3/ping", None::<String>).await?;
 
         Ok("pong")
     }
@@ -35,7 +35,7 @@ impl General {
     /// let server_time = tokio_test::block_on(general.get_server_time());
     /// assert!(server_time.is_ok(), "{:?}", server_time);
     /// ```
-    pub async fn get_server_time(&self) -> Result<ServerTime> { self.client.get("/api/v3/time", None).await }
+    pub async fn get_server_time(&self) -> Result<ServerTime> { self.client.get("/api/v3/time", None::<String>).await }
 
     /// Obtain exchange information (rate limits, symbol metadata etc)
     /// # Examples
@@ -47,6 +47,6 @@ impl General {
     /// assert!(exchange_info.is_ok(), "{:?}", exchange_info);
     /// ```
     pub async fn exchange_info(&self) -> Result<ExchangeInformation> {
-        self.client.get("/api/v3/exchangeInfo", None).await
+        self.client.get("/api/v3/exchangeInfo", None::<String>).await
     }
 }

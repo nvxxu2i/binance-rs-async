@@ -71,7 +71,7 @@ struct ChangePositionModeRequest {
 impl FuturesAccount {
     pub async fn place_order(&self, order: OrderRequest) -> Result<Transaction> {
         self.client
-            .post_signed_p("/fapi/v1/order", order, self.recv_window)
+            .post_signed_p("/fapi/v1/order", &order, self.recv_window)
             .await
     }
 
@@ -236,7 +236,7 @@ impl FuturesAccount {
         self.client
             .post_signed_p(
                 "/fapi/v1/positionSide/dual",
-                ChangePositionModeRequest { dual_side_position },
+                &ChangePositionModeRequest { dual_side_position },
                 self.recv_window,
             )
             .await?;
@@ -250,7 +250,7 @@ impl FuturesAccount {
         self.client
             .delete_signed_p(
                 "/fapi/v1/allOpenOrders",
-                PairQuery { symbol: symbol.into() },
+                &PairQuery { symbol: symbol.into() },
                 self.recv_window,
             )
             .await?;
