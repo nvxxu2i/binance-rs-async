@@ -141,7 +141,7 @@ pub enum Filters {
     #[serde(rename = "MAX_NUM_ALGO_ORDERS")]
     #[serde(rename_all = "camelCase")]
     MaxNumAlgoOrders { limit: u16 },
-    #[serde(rename = "MIN_NOTIONAL")]
+    #[serde(rename = "NOTIONAL")]
     #[serde(rename_all = "camelCase")]
     MinNotional {
         #[serde(with = "string_or_float")]

@@ -98,12 +98,13 @@ pub enum Filters {
         #[serde(with = "string_or_float")]
         step_size: f64,
     },
-    #[serde(rename = "MIN_NOTIONAL")]
+    #[serde(rename = "NOTIONAL")]
     #[serde(rename_all = "camelCase")]
     MinNotional {
         #[serde(with = "string_or_float")]
         min_notional: f64,
-        apply_to_market: bool,
+        apply_min_to_market: bool,
+        apply_max_to_market: bool,
         avg_price_mins: u64,
     },
     #[serde(rename = "ICEBERG_PARTS")]
