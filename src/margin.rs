@@ -61,11 +61,12 @@ impl Margin {
     /// let transaction_id = tokio_test::block_on(margin.transfer("BTCUSDT", 0.001, MarginTransferType::FromMainToMargin));
     /// assert!(transaction_id.is_ok(), "{:?}", transaction_id);
     /// ```
-    pub async fn transfer<S, F>(&self, symbol: S, qty: F, transfer_type: MarginTransferType) -> Result<TransactionId>
-    where
-        S: Into<String>,
-        F: Into<f64>,
-    {
+    pub async fn transfer(
+        &self,
+        symbol: impl Into<String>,
+        qty: impl Into<f64>,
+        transfer_type: MarginTransferType,
+    ) -> Result<TransactionId> {
         let transfer: Transfer = Transfer {
             asset: symbol.into(),
             amount: qty.into(),
@@ -84,18 +85,14 @@ impl Margin {
     /// let transaction_id = tokio_test::block_on(margin.isolated_transfer("BTC", "BTC", 0.001, IsolatedMarginTransferType::Spot, IsolatedMarginTransferType::IsolatedMargin));
     /// assert!(transaction_id.is_ok(), "{:?}", transaction_id);
     /// ```
-    pub async fn isolated_transfer<S, F>(
+    pub async fn isolated_transfer(
         &self,
-        asset_symbol: S,
-        symbol: S,
-        qty: F,
+        asset_symbol: impl Into<String>,
+        symbol: impl Into<String>,
+        qty: impl Into<f64>,
         from: IsolatedMarginTransferType,
         to: IsolatedMarginTransferType,
-    ) -> Result<TransactionId>
-    where
-        S: Into<String>,
-        F: Into<f64>,
-    {
+    ) -> Result<TransactionId> {
         let transfer = IsolatedTransfer {
             asset: asset_symbol.into(),
             symbol: symbol.into(),
@@ -116,11 +113,7 @@ impl Margin {
     /// let transaction_id = tokio_test::block_on(margin.loan("BTCUSDT", 0.001));
     /// assert!(transaction_id.is_ok(), "{:?}", transaction_id);
     /// ```
-    pub async fn loan<S, F>(&self, symbol: S, qty: F) -> Result<TransactionId>
-    where
-        S: Into<String>,
-        F: Into<f64>,
-    {
+    pub async fn loan(&self, symbol: impl Into<String>, qty: impl Into<String>) -> Result<TransactionId> {
         self.loan_with_isolation(symbol, qty, None, None).await
     }
 
@@ -132,18 +125,14 @@ impl Margin {
     /// let transaction_id = tokio_test::block_on(margin.loan_with_isolation("BTCUSDT", 0.001, Some(true), Some("BNB".to_string())));
     /// assert!(transaction_id.is_ok(), "{:?}", transaction_id);
     /// ```
-    pub async fn loan_with_isolation<S, F>(
+    pub async fn loan_with_isolation(
         &self,
-        symbol: S,
-        qty: F,
+        symbol: impl Into<String>,
+        qty: impl Into<String>,
         is_isolated: Option<bool>,
         isolated_asset: Option<String>,
-    ) -> Result<TransactionId>
-    where
-        S: Into<String>,
-        F: Into<f64>,
-    {
-        let loan: Loan = Loan {
+    ) -> Result<TransactionId> {
+        let loan = Loan {
             asset: symbol.into(),
             amount: qty.into(),
             is_isolated: is_isolated.map(bool_to_string),
@@ -161,11 +150,7 @@ impl Margin {
     /// let transaction_id = tokio_test::block_on(margin.repay("BTCUSDT", 0.001));
     /// assert!(transaction_id.is_ok(), "{:?}", transaction_id);
     /// ```
-    pub async fn repay<S, F>(&self, symbol: S, qty: F) -> Result<TransactionId>
-    where
-        S: Into<String>,
-        F: Into<f64>,
-    {
+    pub async fn repay(&self, symbol: impl Into<String>, qty: impl Into<String>) -> Result<TransactionId> {
         self.repay_with_isolation(symbol, qty, None, None).await
     }
 
@@ -177,25 +162,21 @@ impl Margin {
     /// let transaction_id = tokio_test::block_on(margin.repay_with_isolation("BTCUSDT", 0.001, Some(true), Some("BNB".to_string())));
     /// assert!(transaction_id.is_ok(), "{:?}", transaction_id);
     /// ```
-    pub async fn repay_with_isolation<S, F>(
+    pub async fn repay_with_isolation(
         &self,
-        symbol: S,
-        qty: F,
+        symbol: impl Into<String>,
+        qty: impl Into<String>,
         is_isolated: Option<bool>,
         isolated_asset: Option<String>,
-    ) -> Result<TransactionId>
-    where
-        S: Into<String>,
-        F: Into<f64>,
-    {
-        let loan: Loan = Loan {
+    ) -> Result<TransactionId> {
+        let loan = Loan {
             asset: symbol.into(),
             amount: qty.into(),
             is_isolated: is_isolated.map(bool_to_string),
             symbol: isolated_asset,
         };
         self.client
-            .post_signed_p(SAPI_V1_MARGIN_REPAY, &loan, self.recv_window)
+            .post_signed_p(SAPI_V1_MARGIN_REPAY, loan, self.recv_window)
             .await
     }
 

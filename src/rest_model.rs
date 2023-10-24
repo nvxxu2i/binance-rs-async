@@ -461,7 +461,7 @@ pub struct IsolatedTransfer {
 #[serde(rename_all = "camelCase")]
 pub struct Loan {
     pub asset: String,
-    pub amount: f64,
+    pub amount: String,
     pub is_isolated: Option<String>,
     pub symbol: Option<String>,
 }

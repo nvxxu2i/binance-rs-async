@@ -177,16 +177,16 @@ async fn margin_post() {
         )
         .await;
     eprintln!("isolated_transfer = {isolated_transfer:?}");
-    let loan = margin.loan("BTC", 0.001).await;
+    let loan = margin.loan("BTC", "0.001").await;
     eprintln!("loan = {loan:?}");
     let loan_with_isolation = margin
-        .loan_with_isolation("BTC", 0.001, Some(true), Some("BNB".to_string()))
+        .loan_with_isolation("BTC", "0.001", Some(true), Some("BNB".to_string()))
         .await;
     eprintln!("loan_with_isolation = {loan_with_isolation:?}");
-    let repay = margin.repay("BTC", 0.001).await;
+    let repay = margin.repay("BTC", "0.001").await;
     eprintln!("repay = {repay:?}");
     let repay_with_isolation = margin
-        .repay_with_isolation("BTCUSDT", 0.001, Some(true), Some("BNB".to_string()))
+        .repay_with_isolation("BTCUSDT", "0.001", Some(true), Some("BNB".to_string()))
         .await;
     eprintln!("repay_with_isolation = {repay_with_isolation:?}");
     let margin_order = MarginOrder {
