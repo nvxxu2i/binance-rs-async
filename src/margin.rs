@@ -241,6 +241,7 @@ impl Margin {
     /// let transaction_id = tokio_test::block_on(margin.new_order(margin_order));
     /// assert!(transaction_id.is_ok(), "{:?}", transaction_id);
     /// ```
+    #[tracing::instrument(skip(self), err)]
     pub async fn new_order(&self, margin_order: MarginOrder) -> Result<MarginOrderResult> {
         self.trade(margin_order).await
     }
