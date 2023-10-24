@@ -43,6 +43,16 @@ pub struct Margin {
 }
 
 impl Margin {
+    pub async fn cross_margin_fee_data(&self, coin: Option<String>) -> Result<Vec<CrossMarginFeeDataResponse>> {
+        self.client
+            .get_signed_p(
+                "/sapi/v1/margin/crossMarginData",
+                Some(CrossMarginFeeDataQuery { coin }),
+                self.recv_window,
+            )
+            .await
+    }
+
     /// Execute transfer between spot account and margin account.
     /// # Examples
     /// ```rust,no_run

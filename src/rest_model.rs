@@ -465,6 +465,25 @@ pub struct Loan {
     pub symbol: Option<String>,
 }
 
+#[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct CrossMarginFeeDataQuery {
+    pub coin: Option<String>,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct CrossMarginFeeDataResponse {
+    pub vip_level: i64,
+    pub coin: String,
+    pub transfer_in: bool,
+    pub borrowable: bool,
+    pub daily_interest: String,
+    pub yearly_interest: String,
+    pub borrow_limit: String,
+    pub marginable_pairs: Vec<String>,
+}
+
 /// How long will an order stay alive
 #[derive(Eq, PartialEq, Debug, Serialize, Deserialize, Clone)]
 pub enum TimeInForce {
