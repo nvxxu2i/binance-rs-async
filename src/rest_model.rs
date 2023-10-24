@@ -581,9 +581,9 @@ pub struct MarginOrder {
     pub side: OrderSide,
     #[serde(rename(serialize = "type", deserialize = "type"))]
     pub order_type: OrderType,
-    pub quantity: Option<f32>,
+    pub quantity: Option<String>,
     pub quote_order_qty: Option<f64>,
-    pub price: Option<f32>,
+    pub price: Option<String>,
     /// Used with `OrderType::StopLoss`, `OrderType::StopLossLimit`, `OrderType::TakeProfit` and `OrderType::TakeProfitLimit`
     pub stop_price: Option<f64>,
     pub new_client_order_id: Option<String>,
