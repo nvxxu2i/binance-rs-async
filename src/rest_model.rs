@@ -522,6 +522,7 @@ pub enum SideEffectType {
     NoSideEffect,
     MarginBuy,
     AutoRepay,
+    AutoBorrowRepay,
     #[serde(other)]
     Other,
 }
@@ -603,6 +604,8 @@ pub struct MarginOrder {
     pub is_isolated: Option<String>,
     /// Default is `SideEffectType::NoSideEffect`
     pub side_effect_type: SideEffectType,
+
+    pub auto_repay_at_cancel: bool,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
